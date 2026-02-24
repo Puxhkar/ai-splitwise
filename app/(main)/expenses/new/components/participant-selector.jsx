@@ -110,13 +110,9 @@ export function ParticipantSelector({ participants, onParticipantsChange }) {
                 />
                 <CommandList>
                   <CommandEmpty>
-                    {searchQuery.length < 2 ? (
+                    {isLoading ? (
                       <p className="py-3 px-4 text-sm text-center text-muted-foreground">
-                        Type at least 2 characters to search
-                      </p>
-                    ) : isLoading ? (
-                      <p className="py-3 px-4 text-sm text-center text-muted-foreground">
-                        Searching...
+                        Loading...
                       </p>
                     ) : (
                       <p className="py-3 px-4 text-sm text-center text-muted-foreground">
@@ -124,7 +120,7 @@ export function ParticipantSelector({ participants, onParticipantsChange }) {
                       </p>
                     )}
                   </CommandEmpty>
-                  <CommandGroup heading="Users">
+                  <CommandGroup heading={searchQuery.length < 2 ? "Available Users" : "Search Results"}>
                     {searchResults?.map((user) => (
                       <CommandItem
                         key={user.id}

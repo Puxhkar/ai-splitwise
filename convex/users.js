@@ -61,18 +61,60 @@ export const getCurrentUser = query({
   },
 });
 
+export const updateProfile = mutation({
+  args: { name: v.string(), imageUrl: v.string() },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .first();
+
+    if (!user) throw new Error("User not found");
+
+    await ctx.db.patch(user._id, {
+      name: args.name,
+      imageUrl: args.imageUrl,
+    });
+  },
+});
+
 // Search users by name or email (for adding participants)
 export const searchUsers = query({
   args: {
     query: v.string(),
   },
   handler: async (ctx, args) => {
-    // Use centralized getCurrentUser function
-    const currentUser = await ctx.runQuery(internal.users.getCurrentUser);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
 
-    // Don't search if query is too short
-    if (args.query.length < 2) {
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .first();
+
+    if (!currentUser) throw new Error("User not found");
+
+    if (!args.query || args.query.length < 2) {
+      const recentUsers = await ctx.db.query("users").take(10);
+      const filteredUsers = recentUsers.filter((user) => user._id !== currentUser._id);
+
+      // Return empty array if no other users exist. 
+      // We will create real dummy users via the Add Dummy Data button.
       return [];
+
+      return filteredUsers.map((user) => ({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        imageUrl: user.imageUrl,
+      }));
     }
 
     // Search by name using search index

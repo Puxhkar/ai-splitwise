@@ -200,13 +200,9 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }) {
                     />
                     <CommandList>
                       <CommandEmpty>
-                        {searchQuery.length < 2 ? (
+                        {isSearching ? (
                           <p className="py-3 px-4 text-sm text-center text-muted-foreground">
-                            Type at least 2 characters to search
-                          </p>
-                        ) : isSearching ? (
-                          <p className="py-3 px-4 text-sm text-center text-muted-foreground">
-                            Searching...
+                            Loading...
                           </p>
                         ) : (
                           <p className="py-3 px-4 text-sm text-center text-muted-foreground">
@@ -214,7 +210,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }) {
                           </p>
                         )}
                       </CommandEmpty>
-                      <CommandGroup heading="Users">
+                      <CommandGroup heading={searchQuery.length < 2 ? "Available Users" : "Search Results"}>
                         {searchResults?.map((user) => (
                           <CommandItem
                             key={user.id}

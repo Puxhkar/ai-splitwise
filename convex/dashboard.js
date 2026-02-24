@@ -263,3 +263,43 @@ export const getUserGroups = query({
     return enhancedGroups;
   },
 });
+
+// Get report data for the current user
+export const getReportData = query({
+  handler: async (ctx) => {
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
+
+    // Get all expenses user is involved in
+    const allExpenses = await ctx.db.query("expenses").collect();
+    const userExpenses = allExpenses.filter(
+      (expense) =>
+        expense.paidByUserId === user._id ||
+        expense.splits.some((split) => split.userId === user._id)
+    );
+
+    const expensesWithDetails = await Promise.all(
+      userExpenses.map(async (e) => {
+        const payer = await ctx.db.get(e.paidByUserId);
+        const mySplit = e.splits.find((s) => s.userId === user._id);
+        const amount = mySplit ? mySplit.amount : 0;
+
+        let type = "Involved";
+        if (e.paidByUserId === user._id) type = "Paid";
+        else if (mySplit && !mySplit.paid) type = "Owe";
+
+        return {
+          id: e._id,
+          date: e.date,
+          description: e.description,
+          category: e.category,
+          amount: e.amount,
+          yourShare: amount,
+          type,
+          payerName: payer ? payer.name : "Unknown",
+        };
+      })
+    );
+
+    return expensesWithDetails.sort((a, b) => b.date - a.date);
+  },
+});

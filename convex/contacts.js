@@ -100,7 +100,7 @@ export const createGroup = mutation({
     // Validate that all member users exist
     for (const id of uniqueMembers) {
       if (!(await ctx.db.get(id)))
-        throw new Error(`User with ID ${id} not found`);
+        throw new Error(`User with ID ₹{id} not found`);
     }
 
     return await ctx.db.insert("groups", {

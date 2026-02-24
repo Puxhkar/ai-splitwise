@@ -19,16 +19,27 @@ export const seedDatabase = mutation({
     }
 
     // Step 1: Get your existing users
-    const users = await ctx.db.query("users").collect();
+    let users = await ctx.db.query("users").collect();
 
-    if (users.length < 3) {
-      console.log(
-        "Not enough users in the database. Please ensure you have at least 3 users."
-      );
-      return {
-        skipped: true,
-        reason: "Not enough users",
-      };
+    // Auto-create dummy users if needed (we need at least 3)
+    let addedDummies = false;
+    while (users.length < 3) {
+      const i = users.length + 1;
+      const uid = await ctx.db.insert("users", {
+        name: `Demo User ${i}`,
+        email: `demo${i}@splitr.app`,
+        tokenIdentifier: `dummy_token_${i}_${Date.now()}`,
+        imageUrl: `https://api.dicebear.com/7.x/notionists/svg?seed=Demo${i}`,
+      });
+      const newUser = await ctx.db.get(uid);
+      users.push(newUser);
+      addedDummies = true;
+    }
+
+    if (addedDummies) {
+      console.log("Automatically generated missing dummy users to reach minimum of 3.");
+      // Re-fetch to ensure clean access
+      users = await ctx.db.query("users").collect();
     }
 
     // Step 2: Create groups
@@ -67,9 +78,9 @@ async function createGroups(ctx, users) {
   const now = Date.now();
 
   // Using the users from your database
-  const user1 = users[0]; 
-  const user2 = users[1]; 
-  const user3 = users[2]; 
+  const user1 = users[0];
+  const user2 = users[1];
+  const user3 = users[2];
 
   const groupDatas = [
     {
@@ -147,7 +158,7 @@ async function createOneOnOneExpenses(ctx, users) {
     {
       description: "Cab ride to airport",
       amount: 450.0,
-      category: "transportation", 
+      category: "transportation",
       date: oneWeekAgo,
       paidByUserId: user2._id,
       splitType: "equal",

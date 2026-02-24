@@ -64,4 +64,14 @@ export default defineSchema({
       })
     ),
   }),
+
+  // Messages
+  messages: defineTable({
+    groupId: v.id("groups"),
+    senderId: v.id("users"),
+    text: v.string(),
+    timestamp: v.number(),
+  })
+    .index("by_group", ["groupId"])
+    .index("by_timestamp", ["timestamp"]),
 });

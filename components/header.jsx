@@ -22,41 +22,51 @@ export default function Header() {
           <Image
             src={"/logos/logo.png"}
             alt="Vehiql Logo"
-            width={200}
-            height={60}
-            className="h-11 w-auto object-contain"
+            width={120}
+            height={40}
+            className="h-8 w-auto object-contain brightness-0"
           />
         </Link>
 
-        {path === "/" && (
-          <div className="hidden md:flex items-center gap-6">
-            <Link
-              href="#features"
-              className="text-sm font-medium hover:text-green-600 transition"
-            >
-              Features
-            </Link>
-            <Link
-              href="#how-it-works"
-              className="text-sm font-medium hover:text-green-600 transition"
-            >
-              How It Works
-            </Link>
-          </div>
-        )}
+        <div className="hidden md:flex items-center gap-8 mx-auto">
+          <Link
+            href="/features"
+            className="text-xs font-semibold text-zinc-600 hover:text-black transition uppercase tracking-wider"
+          >
+            Features
+          </Link>
+          <Link
+            href="/how-it-works"
+            className="text-xs font-semibold text-zinc-600 hover:text-black transition uppercase tracking-wider"
+          >
+            How It Works
+          </Link>
+          <Link
+            href="/help"
+            className="text-xs font-semibold text-zinc-600 hover:text-black transition uppercase tracking-wider"
+          >
+            Help & Guides
+          </Link>
+        </div>
 
         <div className="flex items-center gap-4">
           <Authenticated>
             <Link href="/dashboard">
               <Button
                 variant="outline"
-                className="hidden md:inline-flex items-center gap-2 hover:text-green-600 hover:border-green-600 transition"
+                className="hidden md:inline-flex items-center gap-2 text-xs font-bold border-green-200 bg-green-100 text-green-700 hover:bg-green-200 transition uppercase tracking-wider"
               >
-                <LayoutDashboard className="h-4 w-4" />
+                <LayoutDashboard className="h-3 w-3" />
                 Dashboard
               </Button>
-              <Button variant="ghost" className="md:hidden w-10 h-10 p-0">
-                <LayoutDashboard className="h-4 w-4" />
+            </Link>
+
+            <Link href="/settings">
+              <Button
+                variant="ghost"
+                className="hidden md:inline-flex text-xs font-bold text-zinc-600 hover:text-black transition uppercase tracking-wider px-2"
+              >
+                Profile
               </Button>
             </Link>
 
@@ -78,7 +88,7 @@ export default function Header() {
             </SignInButton>
 
             <SignUpButton>
-              <Button className="bg-green-600 hover:bg-green-700 border-none">
+              <Button className="bg-black hover:bg-zinc-800 text-white rounded-full text-xs font-bold uppercase tracking-wider border-none px-5">
                 Get Started
               </Button>
             </SignUpButton>

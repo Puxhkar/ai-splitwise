@@ -14,6 +14,7 @@ import { ExpenseList } from "@/components/expense-list";
 import { SettlementList } from "@/components/settlement-list";
 import { GroupBalances } from "@/components/group-balances";
 import { GroupMembers } from "@/components/group-members";
+import { MessageCircle } from "lucide-react";
 
 export default function GroupExpensesPage() {
   const params = useParams();
@@ -67,13 +68,19 @@ export default function GroupExpensesPage() {
           </div>
 
           <div className="flex gap-2">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="text-zinc-700 bg-zinc-50 border-zinc-200 hover:bg-zinc-100 hover:text-black">
+              <Link href={`/groups/${params.id}/chat`}>
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Live Chat
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="border-zinc-200 text-zinc-900 bg-white shadow-sm">
               <Link href={`/settlements/group/${params.id}`}>
                 <ArrowLeftRight className="mr-2 h-4 w-4" />
                 Settle up
               </Link>
             </Button>
-            <Button asChild>
+            <Button asChild className="bg-black hover:bg-zinc-800 text-white shadow-md">
               <Link href={`/expenses/new`}>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add expense
@@ -115,11 +122,11 @@ export default function GroupExpensesPage() {
         onValueChange={setActiveTab}
         className="space-y-4"
       >
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="expenses">
+        <TabsList className="grid w-full grid-cols-2 bg-zinc-100 p-1 rounded-xl">
+          <TabsTrigger value="expenses" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-zinc-950 data-[state=active]:shadow-sm">
             Expenses ({expenses.length})
           </TabsTrigger>
-          <TabsTrigger value="settlements">
+          <TabsTrigger value="settlements" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-zinc-950 data-[state=active]:shadow-sm">
             Settlements ({settlements.length})
           </TabsTrigger>
         </TabsList>

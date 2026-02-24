@@ -65,10 +65,10 @@ export function SettlementList({
                   <div>
                     <h3 className="font-medium">
                       {isCurrentUserPayer
-                        ? `You paid ${receiver.name}`
+                        ? `You paid ₹{receiver.name}`
                         : isCurrentUserReceiver
-                          ? `${payer.name} paid you`
-                          : `${payer.name} paid ${receiver.name}`}
+                          ? `₹{payer.name} paid you`
+                          : `₹{payer.name} paid ₹{receiver.name}`}
                     </h3>
                     <div className="flex items-center text-sm text-muted-foreground gap-2">
                       <span>
@@ -86,7 +86,7 @@ export function SettlementList({
 
                 <div className="text-right">
                   <div className="font-medium">
-                    ${settlement.amount.toFixed(2)}
+                    ₹{settlement.amount.toFixed(2)}
                   </div>
                   {isGroupSettlement ? (
                     <Badge variant="outline" className="mt-1">
