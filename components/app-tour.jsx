@@ -31,27 +31,39 @@ export function AppTour() {
             const currentStep = parseInt(currentStepStr, 10);
 
             const unauthSteps = [
-                { element: "#tour-sign-in", popover: { title: "Sign In", description: "Create an account or login to access the core Splitr engine.", side: "bottom" } },
-                { element: "#tour-how-it-works", popover: { title: "How It Works", description: "Learn how easy it is to automatically split expenses securely.", side: "bottom" } }
-            ];
-
-            const allSteps = [
-                { element: "#tour-how-it-works", popover: { title: "How It Works", description: "Learn how easy it is to automatically split expenses securely.", side: "bottom" } },
                 {
-                    element: "#tour-dashboard-link",
+                    element: "#tour-go-to-dashboard-main",
                     popover: {
-                        title: "Your Dashboard",
-                        description: "This is your control center. Let's go there now!",
+                        title: "Start Here!",
+                        description: "Click here to go to your Dashboard and start splitting bills.",
                         side: "bottom",
                         onNextClick: () => {
-                            localStorage.setItem("splitr-tour-step", "2");
+                            localStorage.setItem("splitr-tour-step", "1");
                             if (driverObj) driverObj.destroy();
                             router.push("/dashboard");
                         }
                     }
                 },
+                { element: "#tour-how-it-works", popover: { title: "How It Works", description: "Learn how easy it is to automatically split expenses securely.", side: "bottom" } },
+                { element: "#tour-sign-in", popover: { title: "Sign In", description: "Create an account or login to access the core Splitr engine.", side: "bottom" } }
+            ];
+
+            const allSteps = [
+                {
+                    element: "#tour-go-to-dashboard-main",
+                    popover: {
+                        title: "Go to Dashboard",
+                        description: "This is your main control center. Always start your journey here!",
+                        side: "bottom",
+                        onNextClick: () => {
+                            localStorage.setItem("splitr-tour-step", "1");
+                            if (driverObj) driverObj.destroy();
+                            router.push("/dashboard");
+                        }
+                    }
+                },
+                { element: "#tour-make-group", popover: { title: "Create a Group", description: "Create groups for trips, roommates, or office budgets first.", side: "top" } },
                 { element: "#tour-add-expense", popover: { title: "Add an Expense", description: "Instantly record a new shared or personal expense here.", side: "left" } },
-                { element: "#tour-make-group", popover: { title: "Create a Group", description: "Create groups for trips, roommates, or office budgets.", side: "top" } },
                 { element: "#tour-group-chat", popover: { title: "Live Group Chat", description: "Communicate directly with your groups and settle debts instantly.", side: "top" } },
                 {
                     element: "#tour-dashboard-graph",

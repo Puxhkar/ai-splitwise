@@ -33,16 +33,25 @@ export default function LandingPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-white text-zinc-950 hover:bg-zinc-200 rounded-full px-8 py-6 text-lg font-bold shadow-xl transition-transform hover:scale-105"
-                >
-                  <Link href="/dashboard">
-                    <LayoutDashboard className="mr-2 h-5 w-5" />
-                    Go to Dashboard
-                  </Link>
-                </Button>
+                <div className="relative group flex flex-col items-center">
+                  <div className="absolute -top-16 bg-zinc-900 text-white font-bold px-4 py-2 rounded-xl shadow-2xl border border-zinc-700 text-sm whitespace-nowrap animate-bounce z-50 pointer-events-none flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px]">✨</span>
+                    Start your App Tour here!
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-t-[8px] border-t-zinc-900 border-r-[6px] border-r-transparent"></div>
+                  </div>
+
+                  <Button
+                    id="tour-go-to-dashboard-main"
+                    asChild
+                    size="lg"
+                    className="bg-white text-zinc-950 hover:bg-zinc-200 rounded-full px-12 py-8 text-2xl font-black shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-transform hover:scale-105"
+                  >
+                    <Link href="/dashboard">
+                      <LayoutDashboard className="mr-3 h-6 w-6 text-blue-600" />
+                      Go to Dashboard
+                    </Link>
+                  </Button>
+                </div>
                 <Button
                   asChild
                   variant="outline"
