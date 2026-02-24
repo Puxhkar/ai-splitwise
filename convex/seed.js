@@ -8,23 +8,25 @@ import { mutation } from "./_generated/server";
 export const seedDatabase = mutation({
   args: {},
   handler: async (ctx) => {
-    // Check if database already has data to avoid duplicate seeding
-    const existingExpenses = await ctx.db.query("expenses").collect();
-    if (existingExpenses.length > 0) {
-      console.log("Database already has expenses. Skipping seed.");
-      return {
-        skipped: true,
-        existingExpenses: existingExpenses.length,
-      };
-    }
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthenticated call to seedDatabase");
 
-    // Step 1: Get your existing users
-    let users = await ctx.db.query("users").collect();
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .first();
 
-    // Auto-create dummy users if needed (we need at least 3)
-    let addedDummies = false;
-    while (users.length < 3) {
-      const i = users.length + 1;
+    if (!currentUser) throw new Error("Current user not found in database.");
+
+    // Step 1: Get existing other users
+    const allUsers = await ctx.db.query("users").collect();
+    let otherUsers = allUsers.filter(u => u._id !== currentUser._id);
+
+    // Auto-create dummy users if needed (we need at least 2 others to interact with)
+    while (otherUsers.length < 2) {
+      const i = otherUsers.length + 1;
       const uid = await ctx.db.insert("users", {
         name: `Demo User ${i}`,
         email: `demo${i}@splitr.app`,
@@ -32,15 +34,11 @@ export const seedDatabase = mutation({
         imageUrl: `https://api.dicebear.com/7.x/notionists/svg?seed=Demo${i}`,
       });
       const newUser = await ctx.db.get(uid);
-      users.push(newUser);
-      addedDummies = true;
+      otherUsers.push(newUser);
     }
 
-    if (addedDummies) {
-      console.log("Automatically generated missing dummy users to reach minimum of 3.");
-      // Re-fetch to ensure clean access
-      users = await ctx.db.query("users").collect();
-    }
+    // Construct the participants list ensuring current user is user1
+    const users = [currentUser, otherUsers[0], otherUsers[1]];
 
     // Step 2: Create groups
     const groups = await createGroups(ctx, users);

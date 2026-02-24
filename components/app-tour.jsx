@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import { useAuth } from "@clerk/nextjs";
 
@@ -25,7 +24,9 @@ export function AppTour() {
         let driverObj = null;
 
         // A small delay to let Next.js layout animations finish
-        const timer = setTimeout(() => {
+        const timer = setTimeout(async () => {
+
+            const { driver } = await import("driver.js");
 
             const currentStepStr = localStorage.getItem("splitr-tour-step") || "0";
             const currentStep = parseInt(currentStepStr, 10);
