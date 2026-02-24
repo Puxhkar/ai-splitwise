@@ -52,7 +52,7 @@ export default function Dashboard() {
         <>
           <div className="flex  justify-between flex-col sm:flex-row sm:items-center gap-4">
             <h1 className="text-5xl gradient-title">Dashboard</h1>
-            <Button asChild>
+            <Button asChild id="tour-add-expense">
               <Link href="/expenses/new">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add expense
@@ -144,13 +144,17 @@ export default function Dashboard() {
             <div className="lg:col-span-2 space-y-6">
 
               {/* Chat on Dashboard */}
-              <DashboardChatWidget groups={groups} />
+              <div id="tour-group-chat">
+                <DashboardChatWidget groups={groups} />
+              </div>
 
               {/* Expense summary */}
-              <ExpenseSummary
-                monthlySpending={monthlySpending}
-                totalSpent={totalSpent}
-              />
+              <div id="tour-dashboard-graph">
+                <ExpenseSummary
+                  monthlySpending={monthlySpending}
+                  totalSpent={totalSpent}
+                />
+              </div>
               {/* Reports Export */}
               <ReportSection />
             </div>
@@ -192,7 +196,7 @@ export default function Dashboard() {
                   <GroupList groups={groups} />
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" asChild className="w-full">
+                  <Button variant="outline" asChild className="w-full" id="tour-make-group">
                     <Link href="/contacts?createGroup=true">
                       <Users className="mr-2 h-4 w-4" />
                       Create new group

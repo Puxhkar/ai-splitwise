@@ -467,3 +467,21 @@ async function createSettlements(
     })
   );
 }
+
+// Clear all database tables for a fresh dashboard start
+export const clearDatabase = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // Collect and delete all rows from all primary tables
+    const collections = ["expenses", "groups", "settlements", "messages"];
+
+    for (const collection of collections) {
+      const records = await ctx.db.query(collection).collect();
+      for (const record of records) {
+        await ctx.db.delete(record._id);
+      }
+    }
+
+    return { success: true };
+  },
+});

@@ -36,6 +36,7 @@ export default function Header() {
             Features
           </Link>
           <Link
+            id="tour-how-it-works"
             href="/how-it-works"
             className="text-xs font-semibold text-zinc-600 hover:text-black transition uppercase tracking-wider"
           >
@@ -51,7 +52,7 @@ export default function Header() {
 
         <div className="flex items-center gap-4">
           <Authenticated>
-            <Link href="/dashboard">
+            <Link href="/dashboard" id="tour-dashboard-link">
               <Button
                 variant="outline"
                 className="hidden md:inline-flex items-center gap-2 text-xs font-bold border-green-200 bg-green-100 text-green-700 hover:bg-green-200 transition uppercase tracking-wider"
@@ -83,11 +84,11 @@ export default function Header() {
           </Authenticated>
 
           <Unauthenticated>
-            <SignInButton>
-              <Button variant="ghost">Sign In</Button>
+            <SignInButton fallbackRedirectUrl="/dashboard">
+              <Button variant="ghost" id="tour-sign-in">Sign In</Button>
             </SignInButton>
 
-            <SignUpButton>
+            <SignUpButton fallbackRedirectUrl="/dashboard">
               <Button className="bg-black hover:bg-zinc-800 text-white rounded-full text-xs font-bold uppercase tracking-wider border-none px-5">
                 Get Started
               </Button>
