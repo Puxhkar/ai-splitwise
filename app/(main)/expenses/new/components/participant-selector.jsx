@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useConvexQuery } from "@/hooks/use-convex-query";
+import { useConvexQuery, useConvexMutation } from "@/hooks/use-convex-query";
 import { api } from "@/convex/_generated/api";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { X, UserPlus } from "lucide-react";
@@ -26,6 +27,7 @@ export function ParticipantSelector({ participants, onParticipantsChange }) {
   const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const createGuestUser = useConvexMutation(api.users.createGuestUser);
 
   // Search for users
   const { data: searchResults, isLoading } = useConvexQuery(
@@ -44,6 +46,19 @@ export function ParticipantSelector({ participants, onParticipantsChange }) {
     onParticipantsChange([...participants, user]);
     setOpen(false);
     setSearchQuery("");
+  };
+
+  // Create & Add a Guest Participant
+  const handleCreateGuest = async () => {
+    if (!searchQuery.trim()) return;
+
+    try {
+      const guest = await createGuestUser.mutate({ name: searchQuery });
+      addParticipant(guest);
+      toast.success(`Participant ${guest.name} added!`);
+    } catch (error) {
+      toast.error("Failed to add participant");
+    }
   };
 
   // Remove a participant
@@ -115,9 +130,21 @@ export function ParticipantSelector({ participants, onParticipantsChange }) {
                         Loading...
                       </p>
                     ) : (
-                      <p className="py-3 px-4 text-sm text-center text-muted-foreground">
-                        No users found
-                      </p>
+                      <div className="py-3 px-4 text-sm text-center text-muted-foreground flex flex-col gap-2 relative z-50">
+                        <p>No registered users found</p>
+                        {searchQuery.length > 0 && (
+                          <Button
+                            type="button"
+                            variant="default"
+                            size="sm"
+                            className="w-full mt-2"
+                            onClick={handleCreateGuest}
+                          >
+                            <UserPlus className="mr-2 h-4 w-4" />
+                            Add "{searchQuery}"
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </CommandEmpty>
                   <CommandGroup heading={searchQuery.length < 2 ? "Available Users" : "Search Results"}>

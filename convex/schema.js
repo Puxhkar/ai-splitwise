@@ -56,6 +56,7 @@ export default defineSchema({
     name: v.string(),
     description: v.optional(v.string()),
     createdBy: v.id("users"), // Reference to users table
+    inviteCode: v.optional(v.string()), // Unique code to join group
     members: v.array(
       v.object({
         userId: v.id("users"), // Reference to users table
@@ -63,7 +64,8 @@ export default defineSchema({
         joinedAt: v.number(),
       })
     ),
-  }),
+  })
+    .index("by_invite_code", ["inviteCode"]),
 
   // Messages
   messages: defineTable({

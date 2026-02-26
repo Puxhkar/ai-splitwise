@@ -24,8 +24,8 @@ export default function HowItWorksPage() {
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800 text-2xl font-bold text-zinc-200 border border-zinc-700">
                             {label}
                         </div>
-                        <h3 className="text-2xl font-bold text-zinc-100">{title}</h3>
-                        <p className="text-zinc-400 text-lg leading-relaxed">{description}</p>
+                        <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{title}</h3>
+                        <p className="text-zinc-600 dark:text-zinc-400 text-lg leading-relaxed">{description}</p>
                     </div>
                 ))}
             </div>

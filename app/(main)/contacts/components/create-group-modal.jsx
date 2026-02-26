@@ -239,11 +239,6 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }) {
                 </PopoverContent>
               </Popover>
             </div>
-            {selectedMembers.length === 0 && (
-              <p className="text-sm text-amber-600">
-                Add at least one other person to the group
-              </p>
-            )}
           </div>
 
           <DialogFooter>
@@ -252,7 +247,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }) {
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || selectedMembers.length === 0}
+              disabled={isSubmitting}
             >
               {isSubmitting ? "Creating..." : "Create Group"}
             </Button>

@@ -4,22 +4,25 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/convex/_generated/api";
-import { useConvexQuery } from "@/hooks/use-convex-query";
+import { useConvexQuery, useConvexMutation } from "@/hooks/use-convex-query";
 import { BarLoader } from "react-spinners";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PlusCircle, ArrowLeftRight, ArrowLeft, Users } from "lucide-react";
+import { PlusCircle, ArrowLeftRight, ArrowLeft, Users, Copy } from "lucide-react";
 import { ExpenseList } from "@/components/expense-list";
 import { SettlementList } from "@/components/settlement-list";
 import { GroupBalances } from "@/components/group-balances";
 import { GroupMembers } from "@/components/group-members";
 import { MessageCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function GroupExpensesPage() {
   const params = useParams();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("expenses");
+  const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
+  const deleteGroup = useConvexMutation(api.groups.deleteGroup);
 
   const { data, isLoading } = useConvexQuery(api.groups.getGroupExpenses, {
     groupId: params.id,
@@ -63,6 +66,22 @@ export default function GroupExpensesPage() {
               <p className="text-muted-foreground">{group?.description}</p>
               <p className="text-sm text-muted-foreground mt-1">
                 {members.length} members
+                {group?.inviteCode && (
+                  <>
+                    <span className="mx-2">•</span>
+                    Code:
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(group.inviteCode);
+                        toast.success("Invite code copied!");
+                      }}
+                      className="ml-1 font-mono bg-zinc-100 hover:bg-zinc-200 text-zinc-800 px-2 py-0.5 rounded transition-colors"
+                      title="Copy invite code"
+                    >
+                      {group.inviteCode} <Copy className="inline h-3 w-3 ml-1" />
+                    </button>
+                  </>
+                )}
               </p>
             </div>
           </div>
@@ -86,6 +105,24 @@ export default function GroupExpensesPage() {
                 Add expense
               </Link>
             </Button>
+            {currentUser?._id === group?.createdBy && (
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  if (confirm("Are you sure you want to delete this group? All expenses, settlements and chats will be permanently deleted!")) {
+                    try {
+                      await deleteGroup.mutate({ groupId: group.id });
+                      toast.success("Group deleted successfully");
+                      router.push("/dashboard");
+                    } catch (e) {
+                      toast.error("Failed to delete group");
+                    }
+                  }
+                }}
+              >
+                Delete Group
+              </Button>
+            )}
           </div>
         </div>
       </div>

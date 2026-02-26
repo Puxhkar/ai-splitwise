@@ -9,11 +9,13 @@ import { BarLoader } from "react-spinners";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Plus, Users, User } from "lucide-react";
+import { Plus, Users, User, LogIn } from "lucide-react";
 import { CreateGroupModal } from "./components/create-group-modal";
+import { JoinGroupModal } from "./components/join-group-modal";
 
 export default function ContactsPage() {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
+  const [isJoinGroupModalOpen, setIsJoinGroupModalOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -50,10 +52,16 @@ export default function ContactsPage() {
     <div className="container mx-auto py-6">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between mb-6">
         <h1 className="text-5xl gradient-title">Contacts</h1>
-        <Button onClick={() => setIsCreateGroupModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Group
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsJoinGroupModalOpen(true)}>
+            <LogIn className="mr-2 h-4 w-4" />
+            Join Group
+          </Button>
+          <Button onClick={() => setIsCreateGroupModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Group
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -142,6 +150,13 @@ export default function ContactsPage() {
       <CreateGroupModal
         isOpen={isCreateGroupModalOpen}
         onClose={() => setIsCreateGroupModalOpen(false)}
+        onSuccess={(groupId) => {
+          router.push(`/groups/${groupId}`);
+        }}
+      />
+      <JoinGroupModal
+        isOpen={isJoinGroupModalOpen}
+        onClose={() => setIsJoinGroupModalOpen(false)}
         onSuccess={(groupId) => {
           router.push(`/groups/${groupId}`);
         }}

@@ -61,6 +61,7 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
     setValue,
     watch,
     reset,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(expenseSchema),
@@ -92,7 +93,11 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
         },
       ]);
     }
-  }, [currentUser, participants]);
+
+    if (currentUser && !getValues("paidByUserId")) {
+      setValue("paidByUserId", currentUser._id);
+    }
+  }, [currentUser, participants, getValues, setValue]);
 
   // Handle form submission
   const onSubmit = async (data) => {
@@ -100,11 +105,20 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
       const amount = parseFloat(data.amount);
 
       // Prepare splits in the format expected by the API
-      const formattedSplits = splits.map((split) => ({
-        userId: split.userId,
-        amount: split.amount,
-        paid: split.userId === data.paidByUserId,
-      }));
+      let formattedSplits = [];
+      if (type === "personal") {
+        formattedSplits = [{
+          userId: currentUser._id,
+          amount: amount,
+          paid: true,
+        }];
+      } else {
+        formattedSplits = splits.map((split) => ({
+          userId: split.userId,
+          amount: split.amount,
+          paid: split.userId === data.paidByUserId,
+        }));
+      }
 
       // Validate that splits add up to the total (with small tolerance)
       const totalSplitAmount = formattedSplits.reduce(
@@ -278,83 +292,88 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
           </div>
         )}
 
-        {/* Paid by selector */}
-        <div className="space-y-2">
-          <Label>Paid by</Label>
-          <select
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            {...register("paidByUserId")}
-          >
-            <option value="">Select who paid</option>
-            {participants.map((participant) => (
-              <option key={participant.id} value={participant.id}>
-                {participant.id === currentUser._id ? "You" : participant.name}
-              </option>
-            ))}
-          </select>
-          {errors.paidByUserId && (
-            <p className="text-sm text-red-500">
-              {errors.paidByUserId.message}
-            </p>
-          )}
-        </div>
+        {/* For personal expenses, we skip paid by and split type selectors */}
+        {type !== "personal" && (
+          <>
+            {/* Paid by selector */}
+            <div className="space-y-2">
+              <Label>Paid by</Label>
+              <select
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                {...register("paidByUserId")}
+              >
+                <option value="">Select who paid</option>
+                {participants.map((participant) => (
+                  <option key={participant.id} value={participant.id}>
+                    {participant.id === currentUser._id ? "You" : participant.name}
+                  </option>
+                ))}
+              </select>
+              {errors.paidByUserId && (
+                <p className="text-sm text-red-500">
+                  {errors.paidByUserId.message}
+                </p>
+              )}
+            </div>
 
-        {/* Split type */}
-        <div className="space-y-2">
-          <Label>Split type</Label>
-          <Tabs
-            defaultValue="equal"
-            onValueChange={(value) => setValue("splitType", value)}
-          >
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="equal">Equal</TabsTrigger>
-              <TabsTrigger value="percentage">Percentage</TabsTrigger>
-              <TabsTrigger value="exact">Exact Amounts</TabsTrigger>
-            </TabsList>
-            <TabsContent value="equal" className="pt-4">
-              <p className="text-sm text-muted-foreground">
-                Split equally among all participants
-              </p>
-              <SplitSelector
-                type="equal"
-                amount={parseFloat(amountValue) || 0}
-                participants={participants}
-                paidByUserId={paidByUserId}
-                onSplitsChange={setSplits} // Use setSplits directly
-              />
-            </TabsContent>
-            <TabsContent value="percentage" className="pt-4">
-              <p className="text-sm text-muted-foreground">
-                Split by percentage
-              </p>
-              <SplitSelector
-                type="percentage"
-                amount={parseFloat(amountValue) || 0}
-                participants={participants}
-                paidByUserId={paidByUserId}
-                onSplitsChange={setSplits} // Use setSplits directly
-              />
-            </TabsContent>
-            <TabsContent value="exact" className="pt-4">
-              <p className="text-sm text-muted-foreground">
-                Enter exact amounts
-              </p>
-              <SplitSelector
-                type="exact"
-                amount={parseFloat(amountValue) || 0}
-                participants={participants}
-                paidByUserId={paidByUserId}
-                onSplitsChange={setSplits} // Use setSplits directly
-              />
-            </TabsContent>
-          </Tabs>
-        </div>
+            {/* Split type */}
+            <div className="space-y-2">
+              <Label>Split type</Label>
+              <Tabs
+                defaultValue="equal"
+                onValueChange={(value) => setValue("splitType", value)}
+              >
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="equal">Equal</TabsTrigger>
+                  <TabsTrigger value="percentage">Percentage</TabsTrigger>
+                  <TabsTrigger value="exact">Exact Amounts</TabsTrigger>
+                </TabsList>
+                <TabsContent value="equal" className="pt-4">
+                  <p className="text-sm text-muted-foreground">
+                    Split equally among all participants
+                  </p>
+                  <SplitSelector
+                    type="equal"
+                    amount={parseFloat(amountValue) || 0}
+                    participants={participants}
+                    paidByUserId={paidByUserId}
+                    onSplitsChange={setSplits} // Use setSplits directly
+                  />
+                </TabsContent>
+                <TabsContent value="percentage" className="pt-4">
+                  <p className="text-sm text-muted-foreground">
+                    Split by percentage
+                  </p>
+                  <SplitSelector
+                    type="percentage"
+                    amount={parseFloat(amountValue) || 0}
+                    participants={participants}
+                    paidByUserId={paidByUserId}
+                    onSplitsChange={setSplits} // Use setSplits directly
+                  />
+                </TabsContent>
+                <TabsContent value="exact" className="pt-4">
+                  <p className="text-sm text-muted-foreground">
+                    Enter exact amounts
+                  </p>
+                  <SplitSelector
+                    type="exact"
+                    amount={parseFloat(amountValue) || 0}
+                    participants={participants}
+                    paidByUserId={paidByUserId}
+                    onSplitsChange={setSplits} // Use setSplits directly
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="flex justify-end">
         <Button
           type="submit"
-          disabled={isSubmitting || participants.length <= 1}
+          disabled={isSubmitting || (type === "individual" && participants.length <= 1) || (type === "group" && !selectedGroup)}
         >
           {isSubmitting ? "Creating..." : "Create Expense"}
         </Button>

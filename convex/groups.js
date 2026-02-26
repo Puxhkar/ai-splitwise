@@ -1,4 +1,4 @@
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 
@@ -182,6 +182,8 @@ export const getGroupExpenses = query({
         id: group._id,
         name: group.name,
         description: group.description,
+        inviteCode: group.inviteCode,
+        createdBy: group.createdBy,
       },
       members: memberDetails,
       expenses,
@@ -190,4 +192,63 @@ export const getGroupExpenses = query({
       userLookupMap,
     };
   },
+});
+
+export const deleteGroup = mutation({
+  args: { groupId: v.id("groups") },
+  handler: async (ctx, args) => {
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    const group = await ctx.db.get(args.groupId);
+
+    if (!group) {
+      throw new Error("Group not found");
+    }
+
+    // Verify permission: Must be the creator, OR it's an old group (no createdBy) and user is a member
+    if (group.createdBy) {
+      if (group.createdBy !== user._id) {
+        throw new Error("Only the creator can delete this group");
+      }
+    } else {
+      const isMember = group.members.some(m => m.userId === user._id);
+      if (!isMember) {
+        throw new Error("You do not have permission to delete this group");
+      }
+    }
+
+    // Delete all expenses in this group
+    const expenses = await ctx.db
+      .query("expenses")
+      .withIndex("by_group", (q) => q.eq("groupId", args.groupId))
+      .collect();
+
+    for (const expense of expenses) {
+      await ctx.db.delete(expense._id);
+    }
+
+    // Delete all settlements in this group
+    const settlements = await ctx.db
+      .query("settlements")
+      .withIndex("by_group", (q) => q.eq("groupId", args.groupId))
+      .collect();
+
+    for (const settlement of settlements) {
+      await ctx.db.delete(settlement._id);
+    }
+
+    // Delete all messages in this group
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_group", (q) => q.eq("groupId", args.groupId))
+      .collect();
+
+    for (const message of messages) {
+      await ctx.db.delete(message._id);
+    }
+
+    // Finally delete the group
+    await ctx.db.delete(args.groupId);
+
+    return { success: true };
+  }
 });

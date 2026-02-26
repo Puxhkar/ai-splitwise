@@ -222,3 +222,29 @@ export const deleteExpense = mutation({
     return { success: true };
   },
 });
+
+// Get personal expenses (only involving the current user)
+export const getPersonalExpenses = query({
+  handler: async (ctx) => {
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
+
+    // Get all expenses where user paid
+    const myPaid = await ctx.db
+      .query("expenses")
+      .withIndex("by_user_and_group", (q) =>
+        q.eq("paidByUserId", user._id)
+      )
+      .collect();
+
+    // Filter down to strictly personal expenses: 
+    // This implies that there is NO groupId, the split length is exactly 1 and it's the current user
+    const personalExpenses = myPaid.filter((e) =>
+      !e.groupId && Array.isArray(e.splits) && e.splits.length === 1 && e.splits[0].userId === user._id
+    );
+
+    // Sort by date descending
+    personalExpenses.sort((a, b) => b.date - a.date);
+
+    return personalExpenses;
+  },
+});

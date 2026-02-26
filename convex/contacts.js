@@ -50,12 +50,12 @@ export const getAllContacts = query({
         const u = await ctx.db.get(id);
         return u
           ? {
-              id: u._id,
-              name: u.name,
-              email: u.email,
-              imageUrl: u.imageUrl,
-              type: "user",
-            }
+            id: u._id,
+            name: u.name,
+            email: u.email,
+            imageUrl: u.imageUrl,
+            type: "user",
+          }
           : null;
       })
     );
@@ -103,10 +103,13 @@ export const createGroup = mutation({
         throw new Error(`User with ID ₹{id} not found`);
     }
 
+    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
     return await ctx.db.insert("groups", {
       name: args.name.trim(),
       description: args.description?.trim() ?? "",
       createdBy: currentUser._id,
+      inviteCode,
       members: [...uniqueMembers].map((id) => ({
         userId: id,
         role: id === currentUser._id ? "admin" : "member",
@@ -114,4 +117,45 @@ export const createGroup = mutation({
       })),
     });
   },
+});
+
+/* ──────────────────────────────────────────────────────────────────────────
+   3. joinGroup - join a group using an invite code
+   ──────────────────────────────────────────────────────────────────────── */
+export const joinGroup = mutation({
+  args: {
+    inviteCode: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const currentUser = await ctx.runQuery(internal.users.getCurrentUser);
+
+    // Find the group with this invite code
+    const group = await ctx.db
+      .query("groups")
+      .withIndex("by_invite_code", (q) => q.eq("inviteCode", args.inviteCode.trim().toUpperCase()))
+      .first();
+
+    if (!group) {
+      throw new Error("Invalid or expired invite code");
+    }
+
+    // Check if user is already a member
+    if (group.members.some(m => m.userId === currentUser._id)) {
+      return group._id; // Already a member, just return ID
+    }
+
+    // Add user to the group
+    await ctx.db.patch(group._id, {
+      members: [
+        ...group.members,
+        {
+          userId: currentUser._id,
+          role: "member",
+          joinedAt: Date.now(),
+        }
+      ]
+    });
+
+    return group._id;
+  }
 });
