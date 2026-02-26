@@ -10,3 +10,14 @@
 2/26/2026, 10:50:05 PM [CONVEX Q(groups:getGroupExpenses)] Uncaught Error: Group not found
     at handler (../convex/groups.js:88:23)
 
+2/26/2026, 11:29:57 PM [CONVEX Q(dashboard:getUserGroups)] Uncaught Error: Uncaught Error: User not found
+    at handler (../convex/users.js:57:4)
+
+    at async handler (../convex/dashboard.js:193:10)
+
+2/26/2026, 11:35:06 PM [CONVEX Q(groups:getGroupExpenses)] Uncaught Error: Group not found
+    at handler (../convex/groups.js:88:23)
+
+2/26/2026, 11:35:07 PM [CONVEX Q(groups:getGroupExpenses)] Uncaught Error: Group not found
+    at handler (../convex/groups.js:88:23)
+

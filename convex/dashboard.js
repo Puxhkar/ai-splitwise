@@ -4,8 +4,12 @@ import { internal } from "./_generated/api";
 // Get user balances
 export const getUserBalances = query({
   handler: async (ctx) => {
-    // Use the existing getCurrentUser function instead of repeating auth logic
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    let user;
+    try {
+      user = await ctx.runQuery(internal.users.getCurrentUser);
+    } catch (e) {
+      return { youOwe: 0, youAreOwed: 0, totalBalance: 0, oweDetails: { youOwe: [], youAreOwedBy: [] } };
+    }
 
     /* ───────────── 1‑to‑1 expenses (no groupId) ───────────── */
     const expenses = (await ctx.db.query("expenses").collect()).filter(
@@ -87,7 +91,12 @@ export const getUserBalances = query({
 // Get total spent in the current year
 export const getTotalSpent = query({
   handler: async (ctx) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    let user;
+    try {
+      user = await ctx.runQuery(internal.users.getCurrentUser);
+    } catch (e) {
+      return 0;
+    }
 
     // Get start of current year timestamp
     const currentYear = new Date().getFullYear();
@@ -125,7 +134,12 @@ export const getTotalSpent = query({
 // Get monthly spending
 export const getMonthlySpending = query({
   handler: async (ctx) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    let user;
+    try {
+      user = await ctx.runQuery(internal.users.getCurrentUser);
+    } catch (e) {
+      return [];
+    }
 
     // Get current year
     const currentYear = new Date().getFullYear();
@@ -188,7 +202,12 @@ export const getMonthlySpending = query({
 // Get groups for the current user
 export const getUserGroups = query({
   handler: async (ctx) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    let user;
+    try {
+      user = await ctx.runQuery(internal.users.getCurrentUser);
+    } catch (e) {
+      return [];
+    }
 
     // Get all groups
     const allGroups = await ctx.db.query("groups").collect();
@@ -267,7 +286,12 @@ export const getUserGroups = query({
 // Get report data for the current user
 export const getReportData = query({
   handler: async (ctx) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    let user;
+    try {
+      user = await ctx.runQuery(internal.users.getCurrentUser);
+    } catch (e) {
+      return [];
+    }
 
     // Get all expenses user is involved in
     const allExpenses = await ctx.db.query("expenses").collect();
