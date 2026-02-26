@@ -65,10 +65,10 @@ export function SettlementList({
                   <div>
                     <h3 className="font-medium">
                       {isCurrentUserPayer
-                        ? `You paid ₹{receiver.name}`
+                        ? `You paid ${receiver.name}`
                         : isCurrentUserReceiver
-                          ? `₹{payer.name} paid you`
-                          : `₹{payer.name} paid ₹{receiver.name}`}
+                          ? `${payer.name} paid you`
+                          : `${payer.name} paid ${receiver.name}`}
                     </h3>
                     <div className="flex items-center text-sm text-muted-foreground gap-2">
                       <span>

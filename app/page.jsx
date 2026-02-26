@@ -48,7 +48,7 @@ export default function LandingPage() {
                   >
                     <Link href="/dashboard">
                       <LayoutDashboard className="mr-3 h-6 w-6 text-blue-600" />
-                      Go to Dashboard
+                      Start splitting
                     </Link>
                   </Button>
                 </div>

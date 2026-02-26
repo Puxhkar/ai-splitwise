@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Button } from "./ui/button";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, User, Users, SplitSquareHorizontal, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import { useStoreUser } from "@/hooks/use-store-user";
@@ -52,6 +52,33 @@ export default function Header() {
 
         <div className="flex items-center gap-4">
           <Authenticated>
+            <div className="relative group hidden md:block">
+              <Button
+                variant="outline"
+                className="inline-flex items-center gap-2 text-xs font-bold border-zinc-200 bg-zinc-50 text-zinc-700 hover:bg-zinc-100 transition uppercase tracking-wider"
+              >
+                <SplitSquareHorizontal className="h-3 w-3" />
+                Splitting
+                <ChevronDown className="h-3 w-3 ml-1" />
+              </Button>
+              <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="bg-white border border-zinc-200 shadow-xl rounded-xl p-2 flex flex-col gap-1">
+                  <Link href="/dashboard?tab=personal" className="px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-black rounded-lg flex items-center gap-3">
+                    <User className="h-4 w-4 text-emerald-500" />
+                    Self Expense Tracker
+                  </Link>
+                  <Link href="/expenses/new" className="px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-black rounded-lg flex items-center gap-3">
+                    <SplitSquareHorizontal className="h-4 w-4 text-blue-500" />
+                    Individual Splitting
+                  </Link>
+                  <Link href="/dashboard?tab=groups" className="px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-black rounded-lg flex items-center gap-3">
+                    <Users className="h-4 w-4 text-purple-500" />
+                    Group Splitting
+                  </Link>
+                </div>
+              </div>
+            </div>
+
             <Link href="/dashboard" id="tour-dashboard-link">
               <Button
                 variant="outline"

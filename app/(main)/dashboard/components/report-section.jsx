@@ -45,7 +45,7 @@ export function ReportSection() {
             // Add Date Range
             doc.setFontSize(11);
             doc.setTextColor(113, 113, 122); // zinc-500
-            doc.text(`Generated on: ₹{format(now, "MMM do, yyyy")}`, 14, 30);
+            doc.text(`Generated on: ${format(now, "MMM do, yyyy 'at' p")}`, 14, 30);
 
             // Summary Stats
             const totalPersonalSpent = filteredData.reduce((acc, curr) => curr.type !== "Paid" ? acc + curr.yourShare : acc, 0);

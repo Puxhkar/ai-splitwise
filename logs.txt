@@ -1,0 +1,12 @@
+2/26/2026, 10:22:10 PM [CONVEX Q(groups:getGroupExpenses)] Uncaught Error: Group not found
+    at handler (../convex/groups.js:88:23)
+
+2/26/2026, 10:50:02 PM [CONVEX Q(groups:getGroupExpenses)] Uncaught Error: Group not found
+    at handler (../convex/groups.js:88:23)
+
+2/26/2026, 10:50:02 PM [CONVEX Q(groups:getGroupExpenses)] Uncaught Error: Group not found
+    at handler (../convex/groups.js:88:23)
+
+2/26/2026, 10:50:05 PM [CONVEX Q(groups:getGroupExpenses)] Uncaught Error: Group not found
+    at handler (../convex/groups.js:88:23)
+

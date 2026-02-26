@@ -149,6 +149,8 @@ export const searchUsers = query({
 export const createGuestUser = mutation({
   args: {
     name: v.string(),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -167,7 +169,8 @@ export const createGuestUser = mutation({
     // Create a new offline user
     const guestId = await ctx.db.insert("users", {
       name: args.name.trim(),
-      email: `guest_${randomSuffix}@splitr.local`,
+      email: args.email ? args.email : `guest_${randomSuffix}@splitr.local`,
+      phone: args.phone,
       tokenIdentifier: `guest_${currentUser._id}_${Date.now()}`,
       imageUrl: "",
     });
@@ -175,7 +178,8 @@ export const createGuestUser = mutation({
     return {
       id: guestId,
       name: args.name.trim(),
-      email: `guest_${randomSuffix}@splitr.local`,
+      email: args.email ? args.email : `guest_${randomSuffix}@splitr.local`,
+      phone: args.phone,
       imageUrl: "",
     };
   }
