@@ -64,25 +64,25 @@ export default function GroupExpensesPage() {
             <div>
               <h1 className="text-4xl gradient-title">{group?.name}</h1>
               <p className="text-muted-foreground">{group?.description}</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {members.length} members
+              <div className="flex items-center text-sm text-muted-foreground mt-2">
+                <span>{members.length} members</span>
                 {group?.inviteCode && (
                   <>
-                    <span className="mx-2">•</span>
-                    Code:
+                    <span className="mx-3 font-bold text-lg">•</span>
+                    <span className="font-semibold text-base text-zinc-700 dark:text-zinc-300 mr-2">Invite Code:</span>
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(group.inviteCode);
                         toast.success("Invite code copied!");
                       }}
-                      className="ml-1 font-mono bg-zinc-100 hover:bg-zinc-200 text-zinc-800 px-2 py-0.5 rounded transition-colors"
+                      className="font-mono text-lg font-bold bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 hover:from-blue-600 hover:via-indigo-600 hover:to-purple-600 text-white px-4 py-1.5 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center animate-pulse"
                       title="Copy invite code"
                     >
-                      {group.inviteCode} <Copy className="inline h-3 w-3 ml-1" />
+                      {group.inviteCode} <Copy className="h-4 w-4 ml-2 opacity-90" />
                     </button>
                   </>
                 )}
-              </p>
+              </div>
             </div>
           </div>
 

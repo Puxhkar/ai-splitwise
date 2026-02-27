@@ -73,9 +73,8 @@ export const getSettlementData = query({
     const me = await ctx.runQuery(internal.users.getCurrentUser);
 
     if (args.entityType === "user") {
-      /* ─────────────────────────────────────────────── user page */
       const other = await ctx.db.get(args.entityId);
-      if (!other) throw new Error("User not found");
+      if (!other) return null;
 
       // ---------- gather expenses where either of us paid or appears in splits
       const myExpenses = await ctx.db
@@ -162,10 +161,10 @@ export const getSettlementData = query({
     } else if (args.entityType === "group") {
       /* ──────────────────────────────────────────────────────── group page */
       const group = await ctx.db.get(args.entityId);
-      if (!group) throw new Error("Group not found");
+      if (!group) return null;
 
       const isMember = group.members.some((m) => m.userId === me._id);
-      if (!isMember) throw new Error("You are not a member of this group");
+      if (!isMember) return null;
 
       // ---------- expenses for this group
       const expenses = await ctx.db

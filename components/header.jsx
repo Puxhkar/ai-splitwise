@@ -71,7 +71,7 @@ export default function Header() {
                     <SplitSquareHorizontal className="h-4 w-4 text-blue-500" />
                     Individual Splitting
                   </Link>
-                  <Link href="/dashboard?tab=groups" className="px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-black rounded-lg flex items-center gap-3">
+                  <Link href="/contacts?createGroup=true" className="px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-black rounded-lg flex items-center gap-3">
                     <Users className="h-4 w-4 text-purple-500" />
                     Group Splitting
                   </Link>

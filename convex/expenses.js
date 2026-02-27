@@ -73,7 +73,7 @@ export const getExpensesBetweenUsers = query({
   args: { userId: v.id("users") },
   handler: async (ctx, { userId }) => {
     const me = await ctx.runQuery(internal.users.getCurrentUser);
-    if (me._id === userId) throw new Error("Cannot query yourself");
+    if (me._id === userId) return null;
 
     /* ───── 1. One-on-one expenses where either user is the payer ───── */
     // Use the compound index (`paidByUserId`,`groupId`) with groupId = undefined
@@ -151,7 +151,7 @@ export const getExpensesBetweenUsers = query({
 
     /* ───── 5. Return payload ───────────────────────────────────────── */
     const other = await ctx.db.get(userId);
-    if (!other) throw new Error("User not found");
+    if (!other) return null;
 
     return {
       expenses,

@@ -23,7 +23,15 @@ export const getGroupOrMembers = query({
       );
 
       if (!selectedGroup) {
-        throw new Error("Group not found or you're not a member");
+        return {
+          selectedGroup: null,
+          groups: userGroups.map((group) => ({
+            id: group._id,
+            name: group.name,
+            description: group.description,
+            memberCount: group.members.length,
+          })),
+        };
       }
 
       // Get all user details for this group's members
@@ -84,10 +92,10 @@ export const getGroupExpenses = query({
     const currentUser = await ctx.runQuery(internal.users.getCurrentUser);
 
     const group = await ctx.db.get(groupId);
-    if (!group) throw new Error("Group not found");
+    if (!group) return null;
 
     if (!group.members.some((m) => m.userId === currentUser._id))
-      throw new Error("You are not a member of this group");
+      return null;
 
     const expenses = await ctx.db
       .query("expenses")
@@ -96,16 +104,18 @@ export const getGroupExpenses = query({
 
     const settlements = await ctx.db
       .query("settlements")
-      .filter((q) => q.eq(q.field("groupId"), groupId))
+      .withIndex("by_group", (q) => q.eq("groupId", groupId))
       .collect();
 
     /* ----------  member map ---------- */
-    const memberDetails = await Promise.all(
+    const memberDetailsRaw = await Promise.all(
       group.members.map(async (m) => {
         const u = await ctx.db.get(m.userId);
+        if (!u) return null;
         return { id: u._id, name: u.name, imageUrl: u.imageUrl, role: m.role };
       })
     );
+    const memberDetails = memberDetailsRaw.filter(Boolean);
     const ids = memberDetails.map((m) => m.id);
 
     /* ----------  ledgers ---------- */
@@ -123,10 +133,14 @@ export const getGroupExpenses = query({
     /* ----------  apply expenses ---------- */
     for (const exp of expenses) {
       const payer = exp.paidByUserId;
+      if (totals[payer] === undefined) continue;
+
       for (const split of exp.splits) {
         if (split.userId === payer || split.paid) continue; // skip payer & settled
         const debtor = split.userId;
         const amt = split.amount;
+
+        if (totals[debtor] === undefined) continue;
 
         totals[payer] += amt;
         totals[debtor] -= amt;
@@ -137,6 +151,8 @@ export const getGroupExpenses = query({
 
     /* ----------  apply settlements ---------- */
     for (const s of settlements) {
+      if (totals[s.paidByUserId] === undefined || totals[s.receivedByUserId] === undefined) continue;
+
       totals[s.paidByUserId] += s.amount;
       totals[s.receivedByUserId] -= s.amount;
 

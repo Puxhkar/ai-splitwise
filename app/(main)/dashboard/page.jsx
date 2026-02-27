@@ -1,5 +1,8 @@
 "use client";
 
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+
 import { api } from "@/convex/_generated/api";
 import { useConvexQuery } from "@/hooks/use-convex-query";
 import { BarLoader } from "react-spinners";
@@ -21,7 +24,24 @@ import { PersonalHistory } from "./components/personal-history";
 import { DashboardChatWidget } from "./components/dashboard-chat-widget";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default function Dashboard() {
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const tabParam = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(tabParam === "personal" ? "personal" : "groups");
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "personal" || tab === "groups") {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (value) => {
+    setActiveTab(value);
+    router.replace(`/dashboard?tab=${value}`, { scroll: false });
+  };
+
   const { data: balances, isLoading: balancesLoading } = useConvexQuery(
     api.dashboard.getUserBalances
   );
@@ -55,7 +75,7 @@ export default function Dashboard() {
             <h1 className="text-5xl gradient-title">Dashboard</h1>
           </div>
 
-          <Tabs defaultValue="groups" className="w-full mt-6">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full mt-6">
             <TabsList className="grid w-full sm:w-[400px] grid-cols-2 mb-8">
               <TabsTrigger value="personal">Personal Tracker</TabsTrigger>
               <TabsTrigger value="groups">Group Splitting</TabsTrigger>
@@ -284,5 +304,13 @@ export default function Dashboard() {
         </>
       )}
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={<div className="container mx-auto py-12 flex justify-center"><BarLoader width={"100%"} color="#36d7b7" /></div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
