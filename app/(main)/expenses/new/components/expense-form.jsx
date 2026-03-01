@@ -171,7 +171,10 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
         {/* Description and amount */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="description">Description</Label>
+
+            </div>
             <Input
               id="description"
               placeholder="Lunch, movie tickets, etc."
@@ -207,6 +210,7 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
 
             <CategorySelector
               categories={categories || []}
+              value={watch("category")}
               onChange={(categoryId) => {
                 if (categoryId) {
                   setValue("category", categoryId);

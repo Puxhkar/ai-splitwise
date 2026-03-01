@@ -4,20 +4,35 @@ import { internal } from "./_generated/api";
 // Get user balances
 export const getUserBalances = query({
   handler: async (ctx) => {
-    let user;
-    try {
-      user = await ctx.runQuery(internal.users.getCurrentUser);
-    } catch (e) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       return { youOwe: 0, youAreOwed: 0, totalBalance: 0, oweDetails: { youOwe: [], youAreOwedBy: [] } };
     }
 
-    /* ───────────── 1‑to‑1 expenses (no groupId) ───────────── */
-    const expenses = (await ctx.db.query("expenses").collect()).filter(
-      (e) =>
-        !e.groupId && // 1‑to‑1 only
-        (e.paidByUserId === user._id ||
-          e.splits.some((s) => s.userId === user._id))
-    );
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .first();
+
+    if (!user) {
+      return { youOwe: 0, youAreOwed: 0, totalBalance: 0, oweDetails: { youOwe: [], youAreOwedBy: [] } };
+    }
+
+    // Get current year start timestamp
+    const currentYear = new Date().getFullYear();
+    const startOfYear = new Date(currentYear, 0, 1).getTime();
+
+    /* ───────────── 1‑to‑1 expenses (no groupId) for current year ───────────── */
+    const expenses = (await ctx.db.query("expenses")
+      .withIndex("by_date", (q) => q.gte("date", startOfYear))
+      .collect()).filter(
+        (e) =>
+          !e.groupId && // 1‑to‑1 only
+          (e.paidByUserId === user._id ||
+            (e.splits && e.splits.some((s) => s.userId === user._id)))
+      );
 
     /* tallies */
     let youOwe = 0;
@@ -91,12 +106,17 @@ export const getUserBalances = query({
 // Get total spent in the current year
 export const getTotalSpent = query({
   handler: async (ctx) => {
-    let user;
-    try {
-      user = await ctx.runQuery(internal.users.getCurrentUser);
-    } catch (e) {
-      return 0;
-    }
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return 0;
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .first();
+
+    if (!user) return 0;
 
     // Get start of current year timestamp
     const currentYear = new Date().getFullYear();
@@ -108,88 +128,72 @@ export const getTotalSpent = query({
       .withIndex("by_date", (q) => q.gte("date", startOfYear))
       .collect();
 
-    // Filter for expenses where user is involved
-    const userExpenses = expenses.filter(
-      (expense) =>
-        expense.paidByUserId === user._id ||
-        expense.splits.some((split) => split.userId === user._id)
-    );
-
-    // Calculate total spent (personal share only)
     let totalSpent = 0;
 
-    userExpenses.forEach((expense) => {
-      const userSplit = expense.splits.find(
-        (split) => split.userId === user._id
-      );
-      if (userSplit) {
+    for (const expense of expenses) {
+      if (!expense || !expense.splits || !Array.isArray(expense.splits)) continue;
+
+      const userSplit = expense.splits.find((split) => split && split.userId === user._id);
+      if (userSplit && typeof userSplit.amount === "number") {
         totalSpent += userSplit.amount;
       }
-    });
+    }
 
-    return totalSpent;
+    return parseFloat(totalSpent.toFixed(2));
   },
 });
 
 // Get monthly spending
 export const getMonthlySpending = query({
   handler: async (ctx) => {
-    let user;
-    try {
-      user = await ctx.runQuery(internal.users.getCurrentUser);
-    } catch (e) {
-      return [];
-    }
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .first();
+
+    if (!user) return [];
 
     // Get current year
     const currentYear = new Date().getFullYear();
     const startOfYear = new Date(currentYear, 0, 1).getTime();
 
     // Get all expenses for current year
-    const allExpenses = await ctx.db
+    const expenses = await ctx.db
       .query("expenses")
       .withIndex("by_date", (q) => q.gte("date", startOfYear))
       .collect();
 
-    // Filter for expenses where user is involved
-    const userExpenses = allExpenses.filter(
-      (expense) =>
-        expense.paidByUserId === user._id ||
-        expense.splits.some((split) => split.userId === user._id)
-    );
-
     // Group expenses by month
-    const monthlyTotals = {};
+    const monthlyTotals = new Map();
 
     // Initialize all months with zero
     for (let i = 0; i < 12; i++) {
-      const monthDate = new Date(currentYear, i, 1);
-      monthlyTotals[monthDate.getTime()] = 0;
+      const monthStart = new Date(currentYear, i, 1).getTime();
+      monthlyTotals.set(monthStart, 0);
     }
 
-    // Sum up expenses by month
-    userExpenses.forEach((expense) => {
-      const date = new Date(expense.date);
-      const monthStart = new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        1
-      ).getTime();
+    for (const expense of expenses) {
+      if (!expense || !expense.splits || !Array.isArray(expense.splits)) continue;
 
-      // Get user's share of this expense
-      const userSplit = expense.splits.find(
-        (split) => split.userId === user._id
-      );
-      if (userSplit) {
-        monthlyTotals[monthStart] =
-          (monthlyTotals[monthStart] || 0) + userSplit.amount;
+      const userSplit = expense.splits.find((split) => split && split.userId === user._id);
+      if (userSplit && typeof userSplit.amount === "number") {
+        const date = new Date(expense.date);
+        const monthStart = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
+
+        const current = monthlyTotals.get(monthStart) || 0;
+        monthlyTotals.set(monthStart, current + userSplit.amount);
       }
-    });
+    }
 
     // Convert to array format
-    const result = Object.entries(monthlyTotals).map(([month, total]) => ({
-      month: parseInt(month),
-      total,
+    const result = Array.from(monthlyTotals.entries()).map(([month, total]) => ({
+      month,
+      total: parseFloat(total.toFixed(2)),
     }));
 
     // Sort by month (ascending)
@@ -202,12 +206,17 @@ export const getMonthlySpending = query({
 // Get groups for the current user
 export const getUserGroups = query({
   handler: async (ctx) => {
-    let user;
-    try {
-      user = await ctx.runQuery(internal.users.getCurrentUser);
-    } catch (e) {
-      return [];
-    }
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .first();
+
+    if (!user) return [];
 
     // Get all groups
     const allGroups = await ctx.db.query("groups").collect();
@@ -286,12 +295,17 @@ export const getUserGroups = query({
 // Get report data for the current user
 export const getReportData = query({
   handler: async (ctx) => {
-    let user;
-    try {
-      user = await ctx.runQuery(internal.users.getCurrentUser);
-    } catch (e) {
-      return [];
-    }
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .first();
+
+    if (!user) return [];
 
     // Get all expenses user is involved in
     const allExpenses = await ctx.db.query("expenses").collect();
@@ -325,5 +339,54 @@ export const getReportData = query({
     );
 
     return expensesWithDetails.sort((a, b) => b.date - a.date);
+  },
+});
+
+// Get category distribution for charts
+export const getCategoryDistribution = query({
+  handler: async (ctx) => {
+    try {
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) return [];
+
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_token", (q) =>
+          q.eq("tokenIdentifier", identity.tokenIdentifier)
+        )
+        .first();
+
+      if (!user) return [];
+
+      const currentYear = new Date().getFullYear();
+      const startOfYear = new Date(currentYear, 0, 1).getTime();
+
+      const expenses = await ctx.db
+        .query("expenses")
+        .withIndex("by_date", (q) => q.gte("date", startOfYear))
+        .collect();
+
+      const distribution = new Map();
+
+      for (const expense of expenses) {
+        if (!expense || !expense.splits || !Array.isArray(expense.splits)) continue;
+
+        const userSplit = expense.splits.find((split) => split && split.userId === user._id);
+
+        if (userSplit && typeof userSplit.amount === "number" && userSplit.amount > 0) {
+          const category = expense.category || "Uncategorized";
+          const current = distribution.get(category) || 0;
+          distribution.set(category, current + userSplit.amount);
+        }
+      }
+
+      return Array.from(distribution.entries()).map(([name, value]) => ({
+        name,
+        value: parseFloat(value.toFixed(2)),
+      }));
+    } catch (error) {
+      console.error("Error in getCategoryDistribution:", error);
+      return [];
+    }
   },
 });

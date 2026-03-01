@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -9,8 +9,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function CategorySelector({ categories, onChange }) {
-  const [selectedCategory, setSelectedCategory] = useState("");
+export function CategorySelector({ categories, onChange, value }) {
+  const [selectedCategory, setSelectedCategory] = useState(value || "");
+
+  // Update internal state when value prop changes
+  useEffect(() => {
+    if (value !== undefined) {
+      setSelectedCategory(value);
+    }
+  }, [value]);
 
   // Handle when a category is selected
   const handleCategoryChange = (categoryId) => {

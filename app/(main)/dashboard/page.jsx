@@ -57,11 +57,15 @@ function DashboardContent() {
   const { data: monthlySpending, isLoading: monthlySpendingLoading } =
     useConvexQuery(api.dashboard.getMonthlySpending);
 
+  const { data: categoryDistribution, isLoading: categoryDistributionLoading } =
+    useConvexQuery(api.dashboard.getCategoryDistribution);
+
   const isLoading =
     balancesLoading ||
     groupsLoading ||
     totalSpentLoading ||
-    monthlySpendingLoading;
+    monthlySpendingLoading ||
+    categoryDistributionLoading;
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -107,6 +111,7 @@ function DashboardContent() {
                     <ExpenseSummary
                       monthlySpending={monthlySpending}
                       totalSpent={totalSpent}
+                      categoryDistribution={categoryDistribution}
                     />
                   </div>
 
@@ -251,6 +256,7 @@ function DashboardContent() {
                     <ExpenseSummary
                       monthlySpending={monthlySpending}
                       totalSpent={totalSpent}
+                      categoryDistribution={categoryDistribution}
                     />
                   </div>
 
