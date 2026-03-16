@@ -108,6 +108,7 @@ export function ExpenseSummary({ monthlySpending, totalSpent, categoryDistributi
                       border: "none",
                       color: "#fff"
                     }}
+                    itemStyle={{ color: "#fff" }}
                     cursor={{ fill: "rgba(255,255,255,0.05)" }}
                     formatter={(value) => [`₹${value.toFixed(2)}`, "Spent"]}
                   />
@@ -130,11 +131,13 @@ export function ExpenseSummary({ monthlySpending, totalSpent, categoryDistributi
                 <PieChart>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "rgba(0,0,0,0.8)",
+                      backgroundColor: "rgba(31, 41, 55, 0.95)",
                       borderRadius: "12px",
-                      border: "none",
-                      color: "#fff"
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      color: "#fff",
+                      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                     }}
+                    itemStyle={{ color: "#fff" }}
                   />
                   <Pie
                     data={pieData.length > 0 ? pieData : [{ name: "No data", value: 1 }]}
@@ -145,7 +148,6 @@ export function ExpenseSummary({ monthlySpending, totalSpent, categoryDistributi
                     paddingAngle={5}
                     dataKey="value"
                     stroke="none"
-                    filter="url(#shadow)"
                     animationBegin={500}
                     animationDuration={1500}
                   >

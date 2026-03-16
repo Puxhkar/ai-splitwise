@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LayoutDashboard, Info, Receipt, MessageCircle, ArrowRight, UserCircle, MapPin, Phone, Mail } from "lucide-react";
 import { TESTIMONIALS } from "@/lib/landing";
 import { LandingChatWidget } from "@/components/landing-chat-widget";
+import { TourBubble } from "@/components/tour-bubble";
 
 export default function LandingPage() {
   return (
@@ -34,11 +35,7 @@ export default function LandingPage() {
 
               <div className="flex flex-col sm:flex-row gap-4 pt-6">
                 <div className="relative group flex flex-col items-center">
-                  <div className="absolute -top-16 bg-zinc-900 text-white font-bold px-4 py-2 rounded-xl shadow-2xl border border-zinc-700 text-sm whitespace-nowrap animate-bounce z-50 pointer-events-none flex items-center gap-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px]">✨</span>
-                    Start your App Tour here!
-                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-t-[8px] border-t-zinc-900 border-r-[6px] border-r-transparent"></div>
-                  </div>
+                  <TourBubble />
 
                   <Button
                     id="tour-go-to-dashboard-main"
