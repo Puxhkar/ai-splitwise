@@ -53,8 +53,8 @@ export function ReportSection() {
 
             doc.setFontSize(12);
             doc.setTextColor(24, 24, 27);
-            doc.text(`Total Personal Share: ₹${totalPersonalSpent.toFixed(2)}`, 14, 42);
-            doc.text(`Total Paid Out: ₹${totalPaidOut.toFixed(2)}`, 14, 48);
+            doc.text(`Total Personal Share: Rs. ${totalPersonalSpent.toFixed(2)}`, 14, 42);
+            doc.text(`Total Paid Out: Rs. ${totalPaidOut.toFixed(2)}`, 14, 48);
 
             // Table
             const tableColumn = ["Date", "Description", "Category", "Payer", "Total Amount", "Your Share"];
@@ -66,8 +66,8 @@ export function ReportSection() {
                     expense.description,
                     expense.category || "-",
                     expense.payerName,
-                    `₹${expense.amount.toFixed(2)}`,
-                    `₹${expense.yourShare.toFixed(2)}`
+                    `Rs. ${expense.amount.toFixed(2)}`,
+                    `Rs. ${expense.yourShare.toFixed(2)}`
                 ];
                 tableRows.push(expenseData);
             });
@@ -111,10 +111,10 @@ export function ReportSection() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-                <div className="flex flex-col xl:flex-row gap-4">
+                <div className="flex flex-wrap gap-4">
                     <Button
                         variant="outline"
-                        className="flex-1 border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-900 shadow-sm font-medium h-12 whitespace-nowrap"
+                        className="flex-1 min-w-[200px] border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-900 shadow-sm font-medium h-12"
                         onClick={() => handleGenerateReport("weekly")}
                         disabled={isGenerating}
                     >
@@ -122,7 +122,7 @@ export function ReportSection() {
                         Weekly Report PDF
                     </Button>
                     <Button
-                        className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 shadow-md font-medium h-12 whitespace-nowrap"
+                        className="flex-1 min-w-[200px] bg-zinc-950 text-white hover:bg-zinc-800 shadow-md font-medium h-12"
                         onClick={() => handleGenerateReport("monthly")}
                         disabled={isGenerating}
                     >
