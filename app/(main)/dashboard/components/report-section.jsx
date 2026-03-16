@@ -111,10 +111,10 @@ export function ReportSection() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col xl:flex-row gap-4">
                     <Button
                         variant="outline"
-                        className="flex-1 border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-900 shadow-sm font-medium h-12"
+                        className="flex-1 border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-900 shadow-sm font-medium h-12 whitespace-nowrap"
                         onClick={() => handleGenerateReport("weekly")}
                         disabled={isGenerating}
                     >
@@ -122,7 +122,7 @@ export function ReportSection() {
                         Weekly Report PDF
                     </Button>
                     <Button
-                        className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 shadow-md font-medium h-12"
+                        className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 shadow-md font-medium h-12 whitespace-nowrap"
                         onClick={() => handleGenerateReport("monthly")}
                         disabled={isGenerating}
                     >

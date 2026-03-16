@@ -55,10 +55,10 @@ export default function SettlementPage() {
 
       <div className="mb-6">
         <h1 className="text-5xl gradient-title">Record a settlement</h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-1 text-zinc-600 dark:text-zinc-400">
           {type === "user"
-            ? `Settling up with ₹{data?.counterpart?.name}`
-            : `Settling up in ₹{data?.group?.name}`}
+            ? `Settling up with ${data?.counterpart?.name}`
+            : `Settling up in ${data?.group?.name}`}
         </p>
       </div>
 

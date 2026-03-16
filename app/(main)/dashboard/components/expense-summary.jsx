@@ -73,20 +73,20 @@ export function ExpenseSummary({ monthlySpending, totalSpent, categoryDistributi
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-primary/10 rounded-2xl p-4 border border-primary/20 shadow-inner">
                 <p className="text-xs font-semibold text-primary uppercase tracking-wider">This Month</p>
-                <h3 className="text-2xl font-black mt-1">
+                <h3 className="text-2xl font-black mt-1 text-zinc-900 dark:text-zinc-100">
                   ₹{monthlySpending?.[currentMonth]?.total?.toFixed(2) || "0.00"}
                 </h3>
               </div>
-              <div className="bg-secondary/10 rounded-2xl p-4 border border-secondary/20 shadow-inner">
-                <p className="text-xs font-semibold text-secondary uppercase tracking-wider">Total Year</p>
-                <h3 className="text-2xl font-black mt-1">
+              <div className="bg-muted rounded-2xl p-4 border border-border shadow-inner">
+                <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">Total Year</p>
+                <h3 className="text-2xl font-black mt-1 text-zinc-900 dark:text-zinc-100">
                   ₹{totalSpent?.toFixed(2) || "0.00"}
                 </h3>
               </div>
             </div>
 
             <div className="h-64 relative group">
-              <p className="text-sm font-medium mb-2 text-muted-foreground">Monthly Trend</p>
+              <p className="text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">Monthly Trend</p>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
@@ -124,7 +124,7 @@ export function ExpenseSummary({ monthlySpending, totalSpent, categoryDistributi
           </div>
 
           <div className="h-full flex flex-col">
-            <p className="text-sm font-medium mb-2 text-muted-foreground">Category Distribution</p>
+            <p className="text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">Category Distribution</p>
             <div className="flex-1 h-64 md:h-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -158,7 +158,7 @@ export function ExpenseSummary({ monthlySpending, totalSpent, categoryDistributi
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2">
               {pieData.slice(0, 4).map((item, index) => (
-                <div key={item.name} className="flex items-center gap-2 text-xs">
+                <div key={item.name} className="flex items-center gap-2 text-xs text-zinc-800 dark:text-zinc-200">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
                   <span className="truncate">{item.name}</span>
                 </div>
@@ -167,7 +167,7 @@ export function ExpenseSummary({ monthlySpending, totalSpent, categoryDistributi
           </div>
         </div>
 
-        <p className="text-[10px] text-muted-foreground text-center mt-6 uppercase tracking-widest font-bold opacity-50">
+        <p className="text-[10px] text-zinc-700 dark:text-zinc-300 text-center mt-6 uppercase tracking-widest font-bold opacity-70">
           Intelligent AI Insights • {currentYear}
         </p>
       </CardContent>
